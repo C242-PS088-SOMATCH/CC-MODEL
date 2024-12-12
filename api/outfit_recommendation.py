@@ -3,9 +3,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.cluster import KMeans
 from collections import Counter
 from PIL import Image
-from database import get_all_image_data_from_db
-from database import get_image_data_from_db
-from database import set_feature_image
+import api
 import numpy as np
 import pandas as pd
 import matplotlib.colors as mcolors
@@ -120,7 +118,7 @@ def match_outfits_with_color_and_style(body):
     input_images = {key: value for key, value in body.items() if value}
     input_features = []
     for category_id in input_images.values():
-        data = get_image_data_from_db(category_id)
+        data = api.database.get_image_data_from_db(category_id)
         if data:
             style_feature = extract_style_features(data['image_url'])
             dominant_color = extract_dominant_color(data['image_url'])
@@ -129,7 +127,7 @@ def match_outfits_with_color_and_style(body):
             input_features.append((style_feature, color_group))
 
     matching_outfits = {}
-    annotations_df = get_all_image_data_from_db()
+    annotations_df = api.database.get_all_image_data_from_db()
 
     for _, row in annotations_df.iterrows():
         row_category = row['category']

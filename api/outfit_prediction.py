@@ -1,7 +1,7 @@
 from tensorflow.keras.models import load_model
 import tensorflow as tf
 import os
-from database import get_image_data_from_db
+import api
 import json
 
 # Load the .h5 model
@@ -26,7 +26,7 @@ def prepare_input(image_path_upper, image_path_bottom):
     return {"image1_input": tf.expand_dims(image, axis=0), "image2_input": tf.expand_dims(image1, axis=0)}
 
 def imagePath(item_id):
-    data = get_image_data_from_db(item_id)
+    data = api.database.get_image_data_from_db(item_id)
     if data:
         return data.get('image_url')  
     else:
