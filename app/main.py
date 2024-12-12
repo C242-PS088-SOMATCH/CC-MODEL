@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 import os
 from api.outfit_prediction import get_outfit_prediction
-from api.outfit_recommendation import match_outfits_with_color_and_style
+from api.outfit_prediction import match_outfits_with_color_and_style
 from api.database import get_image_data_from_db
 import pandas as pd
 
