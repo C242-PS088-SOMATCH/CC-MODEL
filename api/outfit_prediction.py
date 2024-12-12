@@ -1,42 +1,58 @@
-from sklearn.cluster import KMeans
-from collections import Counter
-from PIL import Image
-import pandas as pd
-import numpy as np
+from tensorflow.keras.models import load_model
+import tensorflow as tf
+import os
+from database import get_image_data_from_db
+import json
 
-def extract_style_features(image_path):
-    # Your style feature extraction logic here (using the style model)
-    pass
+# Load the .h5 model
+model_path = os.getenv("MODEL_PATH_FASHION")
+if not model_path:
+    raise ValueError("MODEL_PATH_FASHION environment variable not set.")
+    
+model = load_model(model_path)
+print("Model loaded from model.h5")
 
-def extract_dominant_color(image_path, k=5):
-    image = Image.open(image_path).convert("RGB")
-    image = image.resize((150, 150))
-    img_array = np.array(image)
-    img_array = img_array.reshape((-1, 3))
+def prepare_input(image_path_upper, image_path_bottom):
+    image = tf.io.read_file(image_path_upper)
+    image = tf.image.decode_jpeg(image, channels=3)
+    image = tf.image.resize(image, (224, 224))
+    image = image / 255.0
 
-    kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
-    kmeans.fit(img_array)
-    colors = kmeans.cluster_centers_
-    counts = Counter(kmeans.labels_)
+    image1 = tf.io.read_file(image_path_bottom)
+    image1 = tf.image.decode_jpeg(image1, channels=3)
+    image1 = tf.image.resize(image1, (224, 224))
+    image1 = image1 / 255.0
 
-    sorted_colors = sorted(counts.items(), key=lambda x: x[1], reverse=True)
-    dominant_color = colors[sorted_colors[0][0]]
-    return dominant_color
+    return {"image1_input": tf.expand_dims(image, axis=0), "image2_input": tf.expand_dims(image1, axis=0)}
 
-def match_outfits(input_image_paths, annotations_df, input_categories):
-    matching_outfits = {}
-    input_features = []
+def imagePath(item_id):
+    data = get_image_data_from_db(item_id)
+    if data:
+        return data.get('image_url')  
+    else:
+        raise ValueError(f"Tidak ada data ditemukan untuk ID: {item_id}")
 
-    for img_path in input_image_paths:
-        style_feature = extract_style_features(img_path)
-        dominant_color = extract_dominant_color(img_path)
-        input_features.append((style_feature, dominant_color))
+def get_outfit_prediction():
+    try:
+        body = request.get_json()
+        input_tensor = prepare_input(imagePath(body.upperware), imagePath(body.bottomware))
+        predictions = model.predict(input_tensor)
+        predicted_class = 1 if predictions[0][0] >= 0.5 else 0
 
-    for _, row in annotations_df.iterrows():
-        if row['category'] not in input_categories:
-            for feature in input_features:
-                if row['style'] == feature[0] and row['color_group'] == feature[1]:
-                    if row['category'] not in matching_outfits:
-                        matching_outfits[row['category']] = []
-                    matching_outfits[row['category']].append(row.to_dict())
-    return matching_outfits
+        if predicted_class == 1:
+            return {
+                "message": "Outfit prediction success",
+                "prediction": "Compatible"
+            }
+        else:
+            return {
+                "message": "Outfit prediction success",
+                "prediction": "Not Compatible"
+            }
+
+    except Exception as e:
+        return {
+            "message": "Error",
+            "error": str(e)
+        }, 500
+

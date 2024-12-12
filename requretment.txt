@@ -1,8 +1,0 @@
-flask
-tensorflow
-numpy
-pandas
-mysql-connector-python
-scikit-learn
-matplotlib
-Pillow
