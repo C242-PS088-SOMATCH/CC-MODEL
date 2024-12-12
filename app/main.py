@@ -9,7 +9,8 @@ app = Flask(__name__)
 
 @app.route('/predict_outfit', methods=['POST'])
 def predict_outfit():
-    return get_outfit_prediction()
+    body = request.get_json()
+    return get_outfit_prediction(body)
 
 @app.route('/recommend_outfits', methods=['POST'])
 def recommend_outfits():

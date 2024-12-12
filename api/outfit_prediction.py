@@ -32,9 +32,8 @@ def imagePath(item_id):
     else:
         raise ValueError(f"Tidak ada data ditemukan untuk ID: {item_id}")
 
-def get_outfit_prediction():
+def get_outfit_prediction(body):
     try:
-        body = request.get_json()
         input_tensor = prepare_input(imagePath(body.upperware), imagePath(body.bottomware))
         predictions = model.predict(input_tensor)
         predicted_class = 1 if predictions[0][0] >= 0.5 else 0
