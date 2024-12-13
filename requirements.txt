@@ -1,4 +1,5 @@
-flask
-tensorflow
-tensorflow-io
-gunicorn
+tensorflow>=2.0.0
+Pillow>=8.0.0
+requests>=2.0.0
+google-cloud-storage>=2.0.0
+numpy>=1.18.0
