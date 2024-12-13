@@ -14,4 +14,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 ENV PORT=8080
 
 # Gunicorn akan digunakan untuk menjalankan aplikasi
-CMD exec gunicorn -w 4 -b :$PORT app:app
+CMD exec gunicorn -w 4 -b :$PORT --timeout 3000 app:app
