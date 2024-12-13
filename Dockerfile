@@ -1,8 +1,15 @@
+# Gunakan Python 3.9 sebagai base image
 FROM python:3.9-slim
 
+# Set working directory
 WORKDIR /app
-COPY . /app
 
-RUN pip install -r requirements.txt
+# Copy requirements dan install dependencies
+COPY requirements.txt requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-CMD ["python", "app/main.py"]
+# Copy semua file ke container
+COPY . .
+
+# Jalankan aplikasi
+CMD ["python", "app.py"]
