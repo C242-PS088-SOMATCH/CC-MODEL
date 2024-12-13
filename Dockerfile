@@ -20,4 +20,4 @@ ENV FLASK_RUN_HOST=0.0.0.0
 ENV FLASK_RUN_PORT=8080
 
 # Jalankan Flask app
-CMD ["flask", "run"]
+CMD ["python", "app.py"]
