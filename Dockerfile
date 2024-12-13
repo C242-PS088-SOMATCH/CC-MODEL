@@ -1,23 +1,17 @@
-# Gunakan image Python yang resmi
+# Gunakan image Python
 FROM python:3.9-slim
 
-# Set direktori kerja di dalam container
+# Tetapkan direktori kerja
 WORKDIR /app
 
-# Copy file requirements.txt dan install dependensi
-COPY requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir -r /app/requirements.txt
+# Salin file proyek
+COPY . .
 
-# Copy sisa aplikasi (termasuk app.py dan model) ke dalam container
-COPY . /app
+# Instal dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose port Flask (default port 8080)
-EXPOSE 8080
+# Tetapkan port yang akan digunakan
+ENV PORT=8080
 
-# Set environment variable agar Flask berjalan di host 0.0.0.0 dan port 8080
-ENV FLASK_APP=app.py
-ENV FLASK_RUN_HOST=0.0.0.0
-ENV FLASK_RUN_PORT=8080
-
-# Jalankan Flask app
-CMD ["python", "app.py"]
+# Gunicorn akan digunakan untuk menjalankan aplikasi
+CMD exec gunicorn -w 4 -b :$PORT app:app
